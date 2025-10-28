@@ -1,14 +1,13 @@
 import React from 'react';
 import {
   HTMLChakraProps,
+  RecipeDefinition,
   chakra,
-  forwardRef,
   useBreakpointValue,
-  useTheme,
+  useChakraContext,
   useToken
 } from '@chakra-ui/react';
 
-import { HugConfig, HugConfigProps } from './config';
 import { getClosestValue } from './utils';
 
 // 🤗 Human Universal Gridder
@@ -64,26 +63,31 @@ import { getClosestValue } from './utils';
 // content-1 does not exist as it is named content-start
 // content-2 to content-12
 // content-end
-// full-endf
+// full-end
 
 export interface HugProps extends HTMLChakraProps<'div'> {
   hugGrid?: Record<string, string[]>;
+  ref?: React.Ref<HTMLDivElement>;
 }
 
-export const Hug = forwardRef<HugProps, 'div'>(function Hug(props, ref) {
-  const { hugGrid, ...rest } = props;
+export function Hug(props: HugProps) {
+  const { hugGrid, ref, ...rest } = props;
 
-  const theme = useTheme();
+  const sys = useChakraContext();
+  const recipe = sys.getRecipe('hug') as RecipeDefinition;
 
-  const {
-    layoutMax: layoutMaxToken,
-    gaps,
-    columns
-  } = (theme.config?.hug ?? HugConfig) as HugConfigProps;
+  const max =
+    recipe.base?.maxW || recipe.base?.maxWidth || props.maxW || props.maxWidth;
 
-  const [layoutMax] = useToken('sizes', [layoutMaxToken]);
+  if (!max) {
+    throw new Error(
+      '🤗 Human Universal Gridder: No maxWidth defined in hug recipe or Hug props'
+    );
+  }
 
-  const breakpoints = Array.from(theme.__breakpoints?.keys || []);
+  const [layoutMax] = useToken('sizes', [max as string]);
+
+  const breakpoints = Array.from(sys.breakpoints.keys() || []);
   // Using one single useBreakpoint and then getClosesValue because of a bug in
   // Chakra UI. https://github.com/chakra-ui/chakra-ui/issues/7609#issuecomment-1826371496
   const currentMdq = useBreakpointValue(breakpoints);
@@ -92,13 +96,36 @@ export const Hug = forwardRef<HugProps, 'div'>(function Hug(props, ref) {
     throw new Error("🤗 Human Universal Gridder: Can't get current breakpoint");
   }
 
-  const gapToken = getClosestValue(gaps, currentMdq, breakpoints);
+  const gaps = recipe.base?.gap || recipe.base?.gapX || props.gap || props.gapX;
+
+  if (typeof gaps !== 'object' || Array.isArray(gaps)) {
+    throw new Error(
+      '🤗 Human Universal Gridder: Gap must be defined as an object with responsive values'
+    );
+  }
+
+  const gapToken: string | undefined = getClosestValue(
+    gaps as Record<string, string>,
+    currentMdq,
+    breakpoints
+  );
   if (!gapToken) {
     throw new Error("🤗 Human Universal Gridder: Can't get current gap token");
   }
   const [gridGap] = useToken('sizes', [gapToken]);
 
-  const columnCount = getClosestValue(columns, currentMdq, breakpoints);
+  const columns = recipe.base?.columns || props.columns;
+  if (typeof columns !== 'object' || Array.isArray(columns)) {
+    throw new Error(
+      '🤗 Human Universal Gridder: Columns must be defined as an object with responsive values'
+    );
+  }
+
+  const columnCount: number | undefined = getClosestValue(
+    columns as Record<string, number>,
+    currentMdq,
+    breakpoints
+  );
   if (!columnCount) {
     throw new Error(
       "🤗 Human Universal Gridder: Can't get current number of columns"
@@ -123,7 +150,7 @@ export const Hug = forwardRef<HugProps, 'div'>(function Hug(props, ref) {
       {...gridProps}
     />
   );
-});
+}
 
 interface HugGridHookProps {
   userGrid?: Record<string, string[]>;

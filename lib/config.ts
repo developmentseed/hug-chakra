@@ -1,25 +1,10 @@
-export interface HugConfigProps {
-  layoutMax: string;
-  gaps: Record<string, string>;
-  columns: Record<string, number>;
-}
+import { defineConfig } from '@chakra-ui/react';
+import { hugRecipe } from './hug.recipe';
 
-export const HugConfig = {
-  layoutMax: 'container.xl',
-  gaps: {
-    base: '4',
-    md: '8',
-    lg: '12'
-  },
-  columns: {
-    base: 4,
-    md: 8,
-    lg: 12
+export const hugConfig = defineConfig({
+  theme: {
+    recipes: {
+      hug: hugRecipe
+    }
   }
-};
-
-export function extendHugConfig(config: Partial<HugConfigProps>): {
-  hug: HugConfigProps;
-} {
-  return { hug: { ...HugConfig, ...config } };
-}
+});

@@ -1,2 +1,3 @@
 export { Hug } from './hug';
-export { HugConfigProps, extendHugConfig } from './config';
+export { hugConfig } from './config';
+export { hugRecipe } from './hug.recipe';

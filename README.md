@@ -67,7 +67,7 @@ https://user-images.githubusercontent.com/1090606/156192701-350da28a-7bf4-4129-a
 ```
 </details>
 
-As you can see from the video, the grid will always be centered on the page (with a maximum width bound to the theme property `config.hug.layoutMax`), the leading/trailing columns will take up the rest of the space and will shrink until they disappear.  
+As you can see from the video, the grid will always be centered on the page (with a maximum width as defined in the [component recipe](./lib/hug.recipe.ts)), the leading/trailing columns will take up the rest of the space and will shrink until they disappear.  
 The centered grid will also always have a buffer from the side of the page which is something that does not exist in a traditional css grid.
 
 This approach allows the creation of complex and interesting element placement. An example is a block that would be "bleeding" out of the page content (common with images).
@@ -99,9 +99,11 @@ content-end
 full-end
 ```
 
-_**Note**: Even though the line name `content-1` does not exist, it is the same as `content-start`. We considered it a better expertience to have consistent start and end names for the content (`content-start`/`content-end`)._  
+> [!NOTE]  
+> Even though the line name `content-1` does not exist, it is the same as `content-start`. We considered it a better experience to have consistent start and end names for the content (`content-start`/`content-end`)._  
 
-_**Caveat**: Lines `content-5` though `content-12` will exist depending on the media query. For example, for small screens you'll have `full-start`, `content-start`, `content-2`, `content-3`, `content-4`, `content-end`, `full-end`._
+> [!IMPORTANT]  
+> Lines `content-5` though `content-12` will exist depending on the media query. For example, for small screens you'll have `full-start`, `content-start`, `content-2`, `content-3`, `content-4`, `content-end`, `full-end`._
 
 ## Nested Hug
 
@@ -151,39 +153,44 @@ Example:
 ```
 
 ## Configuring Hug
-The values used by HUG can be configured in the Chakra UI theme. Since they do not necessarily refer to css properties, they're under the `config` property of the theme.
+The hug config must be added to the Chakra UI theme before using the Hug component.
+```js
+import { createSystem, defaultConfig, defineConfig } from '@chakra-ui/react';
+import { hugConfig } from '@devseed-ui/hug-chakra';
+
+const config = defineConfig({
+  // Your custom theme values here
+});
+
+export default createSystem(defaultConfig, hugConfig, config);
+```
+
+The values used by HUG can then be customized in the Chakra UI theme as a recipe under the name `hug`.
 
 The default values are:
 ```js
 {
-  layoutMax: 'container.xl',
-  gaps: {
-    base: '4',
-    md: '8',
-    lg: '12'
-  },
-  columns: {
-    base: 4,
-    md: 8,
-    lg: 12
+  theme: {
+    recipes: {
+      hug: {
+          base: {
+            maxW: '8xl',
+            gap: {
+              base: 4,
+              md: 8,
+              lg: 12
+            },
+            columns: {
+              base: 4,
+              md: 8,
+              lg: 12
+            }
+          }
+      }
+    }
   }
 }
 ```
-
-To change them you can use the `extendHugConfig` function from HUG together with the `extendTheme` function from Chakra UI:
-```js
-import { extendTheme } from '@chakra-ui/react';
-import { extendHugConfig } from '@devseed-ui/hug-chakra';
-
-export default extendTheme({
-  config: {
-    ...extendHugConfig({
-      layoutMax: 'container.2xl'
-    })
-  }
-});
-```
-
 ## Usage details
 
 ### Nested Hug needs to be a direct descendant of another Hug
