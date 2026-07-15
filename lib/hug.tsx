@@ -156,13 +156,16 @@ export function Hug(props: HugProps) {
     ...restProps
   } = rest;
 
+  const finalRowGap =
+    rowGap ?? gapY ?? recipe.base?.rowGap ?? recipe.base?.gapY ?? gridGap;
+
   return (
     <chakra.div
       ref={ref}
       {...restProps}
       display='grid'
       columnGap={gridGap}
-      rowGap={rowGap ?? gapY ?? gridGap}
+      rowGap={finalRowGap}
       {...gridProps}
     />
   );
