@@ -96,7 +96,13 @@ export function Hug(props: HugProps) {
     throw new Error("🤗 Human Universal Gridder: Can't get current breakpoint");
   }
 
-  const gaps = recipe.base?.gap || recipe.base?.gapX || props.gap || props.gapX;
+  const gaps =
+    props.gap ||
+    props.gapX ||
+    props.columnGap ||
+    recipe.base?.gap ||
+    recipe.base?.gapX ||
+    recipe.base?.columnGap;
 
   if (typeof gaps !== 'object' || Array.isArray(gaps)) {
     throw new Error(
@@ -141,12 +147,22 @@ export function Hug(props: HugProps) {
     breakpoints
   });
 
+  const {
+    rowGap,
+    gapY,
+    columnGap: _columnGap,
+    gapX: _gapX,
+    gap: _gap,
+    ...restProps
+  } = rest;
+
   return (
     <chakra.div
       ref={ref}
-      {...rest}
+      {...restProps}
       display='grid'
-      gap={gridGap}
+      columnGap={gridGap}
+      rowGap={rowGap ?? gapY ?? gridGap}
       {...gridProps}
     />
   );
