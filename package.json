@@ -1,6 +1,6 @@
 {
   "name": "@devseed-ui/hug-chakra",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "devseed UI Kit Hug for Chakra",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
