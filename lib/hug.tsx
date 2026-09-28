@@ -153,19 +153,27 @@ export function Hug(props: HugProps) {
     columnGap: _columnGap,
     gapX: _gapX,
     gap: _gap,
+    css: cssProp,
     ...restProps
   } = rest;
 
-  const finalRowGap =
-    rowGap ?? gapY ?? recipe.base?.rowGap ?? recipe.base?.gapY ?? gridGap;
+  // An explicit row gap is a plain style prop, so it wins over everything.
+  const explicitRowGap = rowGap ?? gapY;
+  // The fallback row gap lives in the `base` cascade layer, below `recipes`,
+  // so a parent compound's slot recipe can still set it.
+  const fallbackRowGap = recipe.base?.rowGap ?? recipe.base?.gapY ?? gridGap;
 
   return (
     <chakra.div
       ref={ref}
       {...restProps}
+      css={[
+        sys.layers.wrap('base', { rowGap: fallbackRowGap }),
+        ...(Array.isArray(cssProp) ? cssProp : [cssProp])
+      ]}
       display='grid'
       columnGap={gridGap}
-      rowGap={finalRowGap}
+      rowGap={explicitRowGap}
       {...gridProps}
     />
   );
